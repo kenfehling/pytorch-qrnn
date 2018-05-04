@@ -6,7 +6,7 @@ The QRNN provides similar accuracy to the LSTM but can be betwen 2 and 17 times 
 
 To install, simply run:
 
-`pip install cupy pynvrtc git+https://github.com/salesforce/pytorch-qrnn`
+`pip install cupy pynvrtc git+https://github.com/moscow25/pytorch-qrnn`
 
 If you use this code or our results in your research, please cite:
 
@@ -21,7 +21,7 @@ If you use this code or our results in your research, please cite:
 
 ## Software Requirements
 
-This codebase requires Python 3, [PyTorch](http://pytorch.org/), [pynvrtc](https://github.com/NVIDIA/pynvrtc) (NVIDIA's Python Bindings to NVRTC), and [CuPy](https://cupy.chainer.org/).
+This codebase requires Python 3, [PyTorch](http://pytorch.org/), [pynvrtc](https://github.com/NVIDIA/pynvrtc) (NVIDIA's Python Bindings to NVRTC), and (optionally) [CuPy](https://cupy.chainer.org/).
 While the codebase contains a CPU implementation of the QRNN, the GPU QRNN implementation is used by default if possible.
 Requirements are provided in `requirements.txt`.
 
