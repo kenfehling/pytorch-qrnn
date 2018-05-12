@@ -57,7 +57,11 @@ class QRNNLayer(nn.Module):
             source = X
         elif self.window == 2:
             # Construct the x_{t-1} tensor with optional x_{-1}, otherwise a zeroed out value for x_{-1}
-            Xm1 = [self.prevX if self.prevX is not None else X[:1, :, :] * 0, X[:-1, :, :]]
+            Xm1 = []
+            Xm1.append(self.prevX if self.prevX is not None else X[:1, :, :] * 0)
+            # Note: in case of len(X) == 1, X[:-1, :, :] results in slicing of empty tensor == bad
+            if len(X) > 1:
+                Xm1.append(X[:-1, :, :])
             Xm1 = torch.cat(Xm1, 0)
             # Convert two (seq_len, batch_size, hidden) tensors to (seq_len, batch_size, 2 * hidden)
             source = torch.cat([X, Xm1], 2)
@@ -139,7 +143,7 @@ class QRNN(torch.nn.Module):
 
         super(QRNN, self).__init__()
 
-        self.layers = torch.nn.ModuleList(layers if layers else [QRNNLayer(input_size, hidden_size, **kwargs) for _ in range(num_layers)])
+        self.layers = torch.nn.ModuleList(layers if layers else [QRNNLayer(input_size if l == 0 else hidden_size, hidden_size, **kwargs) for l in range(num_layers)])
 
         self.input_size = input_size
         self.hidden_size = hidden_size
@@ -169,6 +173,17 @@ class QRNN(torch.nn.Module):
 
 
 if __name__ == '__main__':
+    seq_len, batch_size, hidden_size, input_size = 7, 20, 256, 32
+    size = (seq_len, batch_size, input_size)
+    X = torch.autograd.Variable(torch.rand(size), requires_grad=True).cuda()
+    qrnn = QRNN(input_size, hidden_size, num_layers=2, dropout=0.4)
+    qrnn.cuda()
+    output, hidden = qrnn(X)
+    assert list(output.size()) == [7, 20, 256]
+    assert list(hidden.size()) == [2, 20, 256]
+
+    ###
+
     seq_len, batch_size, hidden_size = 2, 2, 16
     seq_len, batch_size, hidden_size = 35, 8, 32
     size = (seq_len, batch_size, hidden_size)
